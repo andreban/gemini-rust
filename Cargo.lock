@@ -275,6 +275,7 @@ dependencies = [
 name = "gemini-rust"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "gcp_auth",
  "reqwest",
  "serde",
