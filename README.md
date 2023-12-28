@@ -1,8 +1,8 @@
 # Vertex API / Gemini in Rust
 
-Aa port of the [Vertex API][4] Gemini [demos by Mete Atamel][1] to Rust.
+A port of the [Vertex API][4] Gemini [demos by Mete Atamel][1] to Rust.
 
-## Running the demo
+## Running the demos
 
 1. Enable the Vertex AI API in the [Cloud Console][2].
 2. Install the [Google Cloud SDK][3] is insalled and configured and that you are logged in into an account with the Vertex API enabled in the Cloud Console. You can use `gcloud auth login` to log in.
@@ -19,7 +19,13 @@ PROJECT_ID="<project id>"
 LOCATION_ID="<location id (also called region)"
 ```
 
-4. Then run the demo with `cargo run`.
+4. Run one of the demos:
+ - `generate-text-from-image-gcs`: Generates text from an image in Google Could Storage.
+ - `generate-text-from-image-local`: Generate text from an local image.
+ - `generate-text-from-text`: Generate text from text.
+
+ Run with `cargo run --bin <demo name>`.
+
 
 [1]: https://github.com/meteatamel/genai-samples/tree/main/vertexai/gemini/console/csharp/rest
 [2]: https://console.cloud.google.com/apis/library/aiplatform.googleapis.com?q=vertex
