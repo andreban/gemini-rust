@@ -28,12 +28,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             role: "user".to_string(),
             parts: vec![Part::Text(prompt.to_string())],
         }],
-        generation_config: GenerationConfig {
-            max_output_tokens: 2048,
-            temperature: 0.4,
-            top_p: 1.0,
-            top_k: 32,
-        },
+        generation_config: Some(GenerationConfig {
+            max_output_tokens: Some(2048),
+            temperature: Some(0.4),
+            top_p: Some(1.0),
+            top_k: Some(32),
+            ..Default::default()
+        }),
     };
 
     let resp = reqwest::Client::new()

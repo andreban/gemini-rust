@@ -14,7 +14,7 @@ pub struct CountTokensResponse {
 #[derive(Serialize, Deserialize)]
 pub struct GenerateContentRequest {
     pub contents: Vec<Content>,
-    pub generation_config: GenerationConfig,
+    pub generation_config: Option<GenerationConfig>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -23,13 +23,15 @@ pub struct Content {
     pub parts: Vec<Part>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct GenerationConfig {
-    pub max_output_tokens: i32,
-    pub temperature: f32,
-    pub top_p: f32,
-    pub top_k: i32,
+    pub max_output_tokens: Option<i32>,
+    pub temperature: Option<f32>,
+    pub top_p: Option<f32>,
+    pub top_k: Option<i32>,
+    pub stop_sequences: Option<Vec<String>>,
+    pub candidate_count: Option<u32>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
