@@ -31,8 +31,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         generation_config: GenerationConfig {
             max_output_tokens: 2048,
             temperature: 0.4,
-            top_p: 1,
-            top_k: 32.0,
+            top_p: 1.0,
+            top_k: 32,
         },
     };
 

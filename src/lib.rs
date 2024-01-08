@@ -28,8 +28,8 @@ pub struct Content {
 pub struct GenerationConfig {
     pub max_output_tokens: i32,
     pub temperature: f32,
-    pub top_p: i32,
-    pub top_k: f32,
+    pub top_p: f32,
+    pub top_k: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
