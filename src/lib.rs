@@ -1,5 +1,16 @@
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CountTokensRequest {
+    pub contents: Content,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CountTokensResponse {
+    pub total_tokens: i32,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct GenerateContentRequest {
     pub contents: Vec<Content>,
