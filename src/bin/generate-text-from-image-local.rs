@@ -44,6 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             top_k: Some(32),
             ..Default::default()
         }),
+        tools: None,
     };
 
     let resp = reqwest::Client::new()

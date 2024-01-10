@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -15,6 +17,12 @@ pub struct CountTokensResponse {
 pub struct GenerateContentRequest {
     pub contents: Vec<Content>,
     pub generation_config: Option<GenerationConfig>,
+    pub tools: Option<Vec<Tools>>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Tools {
+    pub function_declarations: Option<Vec<FunctionDeclaration>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -38,8 +46,18 @@ pub struct GenerationConfig {
 #[serde(rename_all = "camelCase")]
 pub enum Part {
     Text(String),
-    InlineData { mime_type: String, data: String },
-    FileData { mime_type: String, file_uri: String },
+    InlineData {
+        mime_type: String,
+        data: String,
+    },
+    FileData {
+        mime_type: String,
+        file_uri: String,
+    },
+    FunctionCall {
+        name: String,
+        args: HashMap<String, String>,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -83,7 +101,30 @@ pub struct CitationMetadata {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UsageMetadata {
-    candidates_token_count: i32,
+    candidates_token_count: Option<i32>,
     prompt_token_count: i32,
     total_token_count: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FunctionDeclaration {
+    pub name: String,
+    pub description: String,
+    pub parameters: FunctionParameters,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FunctionParameters {
+    pub r#type: String,
+    pub properties: HashMap<String, FunctionParametersProperty>,
+    pub required: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FunctionParametersProperty {
+    pub r#type: String,
+    pub description: String,
 }
