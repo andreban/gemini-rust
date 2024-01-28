@@ -1,4 +1,4 @@
-# Vertex API / Gemini in Rust
+# Vertex API / Gemini in Rust [![Rust](https://github.com/andreban/gemini-rust/actions/workflows/rust.yml/badge.svg)](https://github.com/andreban/gemini-rust/actions/workflows/rust.yml)
 
 A port of the [Vertex API][4] Gemini [demos by Mete Atamel][1] to Rust.
 
