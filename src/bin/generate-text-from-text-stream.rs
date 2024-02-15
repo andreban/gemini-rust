@@ -7,6 +7,7 @@ use reqwest::header::{self, HeaderValue};
 static MODEL_NAME: &str = "gemini-pro";
 static EVENT_STREAM_HEADER: HeaderValue = HeaderValue::from_static("text/event-stream");
 static DATA: &str = "data: ";
+static END_OF_CHUNK: &[u8] = b"\r\n\r\n";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -64,7 +65,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             // Check if the buffer ends with the end of a chunk, i.e. "\r\n\r\n". If not, keep
             // appending chunks to the buffer.
-            if !buffer.ends_with(b"\r\n\r\n") {
+            if !buffer.ends_with(END_OF_CHUNK) {
                 continue;
             }
 
