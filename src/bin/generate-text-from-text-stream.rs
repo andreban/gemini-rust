@@ -1,13 +1,11 @@
 use std::env;
 
+use futures_util::StreamExt;
 use gcp_auth::AuthenticationManager;
 use gemini_rust::{Content, GenerateContentRequest, GenerationConfig, Part, ResponseStreamChunk};
-use reqwest::header::{self, HeaderValue};
+use reqwest_eventsource::EventSource;
 
 static MODEL_NAME: &str = "gemini-pro";
-static EVENT_STREAM_HEADER: HeaderValue = HeaderValue::from_static("text/event-stream");
-static DATA: &str = "data: ";
-static END_OF_CHUNK: &[u8] = b"\r\n\r\n";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -42,61 +40,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         tools: None,
     };
 
-    let mut resp = reqwest::Client::new()
+    // Build the request with the required headers and payload.
+    let request = reqwest::Client::new()
         .post(&endpoint_url)
         .bearer_auth(token.as_str())
-        .json(&payload)
-        .send()
-        .await?;
+        .json(&payload);
 
-    // Check if the server response is an SSE stream via the Content-Type header that should be
-    // "text/event-stream".
-    let is_sse = resp
-        .headers()
-        .get(header::CONTENT_TYPE)
-        .is_some_and(|header| header == EVENT_STREAM_HEADER);
+    // Delegate the request to the EventSource.
+    let mut event_source = EventSource::new(request)?;
 
-    if is_sse {
-        // Buffer to store partial chunks of the SSE stream.
-        let mut buffer = vec![];
-        while let Ok(Some(chunk)) = resp.chunk().await {
-            // Append the chunk to the buffer.
-            buffer.extend_from_slice(&chunk);
-
-            // Check if the buffer ends with the end of a chunk, i.e. "\r\n\r\n". If not, keep
-            // appending chunks to the buffer.
-            if !buffer.ends_with(END_OF_CHUNK) {
-                continue;
-            }
-
-            // The buffer contains a full chunk. Convert it to a string and clear the buffer.
-            let chunk = String::from_utf8(buffer.clone())?;
-            buffer.clear();
-
-            // Ensure the chunk starts with "data: " as per the SSE spec.
-            if !chunk.starts_with(DATA) {
-                continue;
-            }
-
-            // Remove the "data: " prefix from the chunk, so it can be parsed as a valid JSON.
-            let chunk = chunk[DATA.len()..].to_string();
-
-            let response = serde_json::from_str::<ResponseStreamChunk>(&chunk)?;
-
-            // Print the text content of the response.
-            let text = response
-                .candidates
-                .iter()
-                .flat_map(|c| {
-                    c.content.parts.iter().map(|p| match p {
-                        Part::Text(text) => Some(text.clone()),
-                        _ => None,
+    // Iterate over the stream of events from EventSource.
+    while let Some(Ok(event)) = event_source.next().await {
+        match event {
+            reqwest_eventsource::Event::Message(msg) => {
+                let chunk = serde_json::from_str::<ResponseStreamChunk>(&msg.data)?;
+                let text = chunk
+                    .candidates
+                    .iter()
+                    .flat_map(|candidate| {
+                        candidate.content.parts.iter().map(|part| match part {
+                            Part::Text(text) => Some(text.clone()),
+                            _ => None,
+                        })
                     })
-                })
-                .flatten()
-                .collect::<String>();
-            print!("{}", text);
+                    .flatten()
+                    .collect::<String>();
+                print!("{}", text);
+            }
+            _ => (),
         }
     }
+
     Ok(())
 }
