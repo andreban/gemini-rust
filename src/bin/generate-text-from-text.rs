@@ -2,7 +2,7 @@ use std::env;
 
 use gcp_auth::AuthenticationManager;
 use gemini_rust::{
-    Content, GenerateContentRequest, GenerateContentResponse, GenerationConfig, Part,
+    Content, GenerateContentRequest, ResponseStreamChunk, GenerationConfig, Part,
 };
 
 static MODEL_NAME: &str = "gemini-pro";
@@ -14,7 +14,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let location_id = env::var("LOCATION_ID")?; // Sometimes called "region" in gCloud docs.
 
     let endpoint_url = format!(
-        "https://{api_endpoint}/v1beta1/projects/{project_id}/locations/{location_id}/publishers/google/models/{MODEL_NAME}:streamGenerateContent"
+        "https://{api_endpoint}/v1beta1/projects/{project_id}/locations/{location_id}/publishers/google/models/{MODEL_NAME}:generateContent"
     );
 
     let authentication_manager = AuthenticationManager::new().await?;
@@ -45,14 +45,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .send()
         .await?;
 
-    let response = resp.json::<GenerateContentResponse>().await?;
-    response.0.iter().for_each(|chunk| {
-        chunk.candidates.iter().for_each(|candidate| {
-            candidate.content.parts.iter().for_each(|part| {
-                if let Part::Text(text) = part {
-                    print!("{}", text);
-                }
-            });
+    let response = resp.json::<ResponseStreamChunk>().await?;
+    response.candidates.iter().for_each(|candidate| {
+        candidate.content.parts.iter().for_each(|part| {
+            if let Part::Text(text) = part {
+                print!("{}", text);
+            }
         });
     });
 
