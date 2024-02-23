@@ -61,9 +61,6 @@ pub enum Part {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GenerateContentResponse(pub Vec<ResponseStreamChunk>);
-
-#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResponseStreamChunk {
     pub candidates: Vec<Candidate>,
