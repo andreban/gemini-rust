@@ -1,7 +1,9 @@
 use std::env;
 
 use gcp_auth::AuthenticationManager;
-use gemini_rust::{Content, GenerateContentRequest, GenerationConfig, Part, ResponseStreamChunk};
+use gemini_rust::{
+    Content, GenerateContentRequest, GenerateContentResponse, GenerationConfig, Part,
+};
 
 static MODEL_NAME: &str = "gemini-pro-vision";
 
@@ -50,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .send()
         .await?;
 
-    let response = resp.json::<ResponseStreamChunk>().await?;
+    let response = resp.json::<GenerateContentResponse>().await?;
 
     response.candidates.iter().for_each(|candidate| {
         candidate.content.parts.iter().for_each(|part| {

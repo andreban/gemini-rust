@@ -62,7 +62,7 @@ pub enum Part {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ResponseStreamChunk {
+pub struct GenerateContentResponse {
     pub candidates: Vec<Candidate>,
     pub usage_metadata: Option<UsageMetadata>,
 }
