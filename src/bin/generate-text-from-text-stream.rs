@@ -2,7 +2,9 @@ use std::env;
 
 use futures_util::StreamExt;
 use gcp_auth::AuthenticationManager;
-use gemini_rust::{Content, GenerateContentRequest, GenerationConfig, Part, ResponseStreamChunk};
+use gemini_rust::{
+    Content, GenerateContentRequest, GenerateContentResponse, GenerationConfig, Part,
+};
 use reqwest_eventsource::EventSource;
 
 static MODEL_NAME: &str = "gemini-pro";
@@ -53,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     while let Some(Ok(event)) = event_source.next().await {
         match event {
             reqwest_eventsource::Event::Message(msg) => {
-                let chunk = serde_json::from_str::<ResponseStreamChunk>(&msg.data)?;
+                let chunk = serde_json::from_str::<GenerateContentResponse>(&msg.data)?;
                 let text = chunk
                     .candidates
                     .iter()
